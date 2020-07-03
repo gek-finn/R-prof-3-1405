@@ -35,6 +35,14 @@ module.exports = {
                 test: /\.css$/i,
                 use: [MiniCssExtractPlugin.loader, 'css-loader']
             },
+            {
+                test: /\.(png|jpe?g|gif|svg)$/i,
+                use: [
+                    {
+                        loader: 'file-loader',
+                    }
+                ]
+            }
         ]
     },
     plugins: [
@@ -46,5 +54,20 @@ module.exports = {
             filename: 'index.html',
             template: path.resolve(__dirname, 'src', 'public', 'index.html')
         })
-    ]
+    ],
+    devServer: {
+        historyApiFallback: true,
+        port: 3000,
+        hot: true,
+        open: false,
+        proxy: {
+            '/api': {
+                // contentBase: './dist',
+                target: 'http://localhost:3300',
+                pathRewrite: { '^/api' : '' },
+                secure: false,
+                changeOrigin: true
+            }
+        }
+    }
 }

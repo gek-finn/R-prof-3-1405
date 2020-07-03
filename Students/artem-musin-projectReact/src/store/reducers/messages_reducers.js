@@ -2,46 +2,36 @@ import update from 'react-addons-update';
 
 // import actions 
 
-import { SEND_MSG } from '../actions/messages_actions.js';
-import { ADD_CHAT } from '../actions/chats_actions.js'
-
+import { SUCCESS_MESSAGES_LOADING, START_MESSAGES_LOADING, SUCCESS_MESSAGE_SEND } from '../actions/messages_actions.js';
 
 const initialStore = {
-    messages: {
-        1: {
-            user: null,
-            text: 'Hello, human. What do you need from me?'
-        },
-        2: {
-            user: null,
-            text: 'Hi again, human'
-        }
-    },
-    chats: {
-        1: {title: 'Chat room 1', messageList: [1]},
-        2: {title: 'Chat room 2', messageList: [2]},
-        3: {title: '', messageList: []}
-    }
+    messages: [],
+    isLoading: false
 }
 
 export default function msgReducer(store = initialStore, action) {
     switch(action.type) {
-        case SEND_MSG: {
+        case SUCCESS_MESSAGE_SEND: {
+            if (action.payload.response.status) {
+                return update(store, {
+                    messages: { $merge: { [action.payload.msg.messageId]: {
+                        user: action.payload.msg.sender, text: action.payload.msg.text
+                    } } }
+                })
+            } else {
+                console.log('Error send msg', action.payload)
+                return null
+            }
+        }
+        case START_MESSAGES_LOADING: {
             return update(store, {
-                messages: { $merge: { [action.messageId]: {
-                    user: action.sender, text: action.text
-                } } }
+                isLoading: { $set: true }
             })
         }
-        case ADD_CHAT: {
-            const chatId = Object.keys(store.chats).length + 1;
-                return update(store, {
-                    chats: { $merge: {
-                        [chatId]: {
-                            title: action.title, messageList: []
-                        }
-                    } }
-                })
+        case SUCCESS_MESSAGES_LOADING: {
+            return update(store, {
+                messages: { $set: action.payload }
+            })
         }
         default: 
             return store;

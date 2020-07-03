@@ -14,12 +14,12 @@ class Router extends React.Component {
 
     let { chats } = this.props;
     let routesArray = Object.keys(chats).map(key => (
-      <Route path={`/chat/${key}/`} render={() => <Layout chatName={chats[key].title} />} key={key} exact />
+     <Route path={`/chat/${key}/`} render={() => <Layout chatName={chats[key].title} chatId={key} />} key={key} exact />
     ));
     return (
       <Switch>
         <Route path='/' render={() => <Profile />} exact />
-        <Route path='/chats/' render={() => <Layout chatName='Choose chat' />} exact />
+        <Route path='/chats/' render={() => <Layout chatName='Choose chat' noMessages = 'true' />} exact />
         <Route path='/profile/' render={() => <Profile />} exact />
         <Route path='/p404/' render={() => <NotPage type='404' />} exact />
         <Route path='/exit/' render={() => <NotPage type="exit" />} exact />

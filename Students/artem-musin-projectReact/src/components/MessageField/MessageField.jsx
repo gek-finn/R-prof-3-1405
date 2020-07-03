@@ -17,9 +17,21 @@ import { IconButton, TextField, Button } from '@material-ui/core';
 
 // redux 
 
-import { sendMessage } from '../../store/actions/messages_actions.js';
+import { sendMessage, loadMessages } from '../../store/actions/messages_actions.js';
 import { bindActionCreators } from 'redux';
 import connect from 'react-redux/es/connect/connect';
+
+
+const micAttButtonStyles = {
+    display: 'flex',
+    alignSelf: 'center',
+    minHeight: '35px',
+    minWidth: '35px',
+}
+
+const textFieldStyles = {
+    backgroundColor: 'white',
+}
 
 
 class MessagesField extends Component {
@@ -58,20 +70,14 @@ class MessagesField extends Component {
          }) : this.handleSend(this.state.text, 'Me')
 
     }
-
-    componentDidUpdate() { // Апдейт компонента 
-
-         setTimeout(() => {
-
-          }, 2000)
-    }
-
     
+    componentDidMount() {
+        this.props.loadMessages();
+    }
 
     render() {
          
         let { messages } = this.props;
-
 
         let msgArr = [];
 
@@ -83,38 +89,26 @@ class MessagesField extends Component {
                 console.log(msgArr)
         })
             
-        
-
         return (
             <div className="d-flex container flex-column w-100">
-                <div className="d-flex flex-column messagesField overflow-auto w-100">
+                <div className="d-flex flex-column overflow-auto messagesField w-100">
                     { msgArr }    
                 </div>
                 <hr/>
-                <div className="d-flex w-75">
-                    <Button>
-                        <AttachFile style={{
-                            display: 'flex',
-                            alignSelf: 'center'
-                            }} 
-                        />
+                <div className="d-flex w-100 align-items-center">
+                    <Button style={micAttButtonStyles}>
+                        <AttachFile />
                     </Button>
-                    <Button>
-                        <MicIcon style={{
-                            display: 'flex',
-                            alignSelf: 'center'
-                            }}
-                        />
+                    <Button style={micAttButtonStyles}>
+                        <MicIcon />
                     </Button>
                         <TextField
                             id="input-message"
                             size="small"
                             variant="outlined"
-                            style={{
-                                backgroundColor: 'white',
-                            }}
+                            style={textFieldStyles}
                             fullWidth
-                            label="Type your message"
+                            label="Type something..."
                             onChange={this.handleChange }
                             onKeyUp={this.handleChange } 
                             value={ this.state.text }
@@ -135,6 +129,6 @@ const mapStateToProps = ({ msgReducer }) => ({
     messages: msgReducer.messages
 });
 
-const mapDispatchToProps = dispatch => bindActionCreators({ sendMessage }, dispatch);
+const mapDispatchToProps = dispatch => bindActionCreators({ sendMessage, loadMessages }, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(MessagesField);

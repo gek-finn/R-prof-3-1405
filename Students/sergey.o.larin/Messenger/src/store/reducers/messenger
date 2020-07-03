@@ -1,0 +1,74 @@
+import update from "react-addons-update";
+import {
+    ADD_RESPONDENT,
+    CLOSE_RESPONDENT,
+    SELECT_RESPONDENT,
+    UNSELECT_RESPONDENT,
+    SUCCESS_MESSENGER_LOADING,
+    SELECT_USER,
+} from "../action/messenger";
+
+
+let initialStore = {
+    user: '',
+    respondent: '',
+    respondents: [],
+    contacts: '',
+}
+
+export default function chatsReducer(store = initialStore, action) {
+    switch (action.type) {
+        case SUCCESS_MESSENGER_LOADING: {
+            return update(store, {
+                contacts: { $set: action.payload },
+                respondent: { $set: '' },
+                respondents: { $set: [] },
+            })
+        }
+
+        case ADD_RESPONDENT: {
+            let thisRespondents = store.respondents;
+            thisRespondents.push(action.id)
+            return {
+                ...store,
+                respondents: thisRespondents
+            };
+        }
+
+        case SELECT_RESPONDENT: {
+            return {
+                ...store,
+                respondent: action.id
+            }
+        }
+
+        case UNSELECT_RESPONDENT: {
+            return {
+                ...store,
+                respondent: ''
+            }
+        }
+
+        case CLOSE_RESPONDENT: {
+            let thisRespondents = store.respondents;
+            thisRespondents.splice(thisRespondents.indexOf(action.id), 1)
+            return {
+                ...store,
+                respondents: thisRespondents
+            }
+        }
+
+        case SELECT_USER: {
+            return {
+                ...store,
+                user: {
+                    id: action.id,
+                    name: action.name,
+                },
+            }
+        }
+
+        default:
+            return store;
+    }
+}

@@ -6,14 +6,6 @@ const path = require('path');
 
 
 module.exports = {
-    
-    devServer: {
-        port: 8080, 
-        historyApiFallback: {
-            index: 'index.html'
-        },
-    },
-
     entry: {
         // точка входа до index.js
             main: path.resolve(__dirname, 'src', 'index.jsx')
@@ -54,7 +46,24 @@ module.exports = {
         new HtmlWebpackPlugin({
             filename: 'index.html',
             template: path.resolve(__dirname, 'src', 'public', 'index.html')    // template свойство - для копии собственного html
-        }) 
-        
-    ]
+        }) ,
+    ],
+    
+    devServer: {
+        contentBase: './dist',
+        port: 3000,
+        hot: true,
+        open: false,
+        proxy: {
+            '/api': {
+                target: 'http://localhost:3300',
+                pathRewrite: { '^/api': '' },
+                secure: false, 
+                changeOrigin: true 
+            }
+        },
+        historyApiFallback: {
+            index: 'index.html'
+        },
+    },
 };

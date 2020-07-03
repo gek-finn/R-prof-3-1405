@@ -5,15 +5,21 @@ import './style.css';
 
 const useStyles = makeStyles({
     root: {
-        display: 'flex',
-        width: '75%',
+        display: 'block',
+        width: 'auto',
+        maxWidth: '60%',
+        padding: '0.5em',
+        overflowWrap: 'anywhere',  
         alignSelf: 'start',
         flexDirection: 'column',
         
     },
     user: {
-        display: 'flex',
-        width: '75%',
+        display: 'block',
+        width: 'auto',
+        maxWidth: '60%',
+        padding: '0.5em',
+        overflowWrap: 'anywhere',  
         alignSelf: 'flex-end',
         textAlign: 'right',
         flexDirection: 'column',
@@ -22,33 +28,35 @@ const useStyles = makeStyles({
         backgroundColor: 'rgb(85, 16, 212)',
         padding: '5px 20px',
         borderRadius: '20px',
-        margin: '8px',
         color: 'whitesmoke',
-
     },
     pClass: {
-        marginRight: '2em'
+        marginRight: '1.2em'
     },
     pClassBot: {
-        marginLeft: '2em'
+        marginLeft: '1.2em'
+    },
+    pFix: {
+        marginBottom: '0',
+        padding: '0.2em'
     }
 })
 
 export default (props) => {
     const classes = useStyles();
     let { sender, text } = props;
-    let differenceMessages = sender === null ? classes.root : classes.user
+    let differenceMessages = sender === 'Bot' ? classes.root : classes.user
     const messageBody = classes.bodyMessage;
-    let p = sender === null ? classes.pClassBot : classes.pClass;
-    // sender = sender ? sender : 'Bot';
+    let p = sender === 'Bot' ? classes.pClassBot : classes.pClass;
+    const pFix = classes.pFix;
 
 
     return (
-        <div className={differenceMessages}>
+         <div className={differenceMessages}>
             { sender && <strong className={p}>{ sender }</strong> }
-            { !sender && <strong className={p}>Bot</strong>}
+            { !sender && <strong className={p}> Bot </strong>}
            <div className={messageBody}>
-            <p>{ props.sender || (!props.sender && text) ? text : 'Bot tells you that he cant response more than this'}</p>
+            <p className={pFix}>{ props.sender || (!props.sender && text) ? text : 'Oops..'}</p>
            </div>
         </div>
     )

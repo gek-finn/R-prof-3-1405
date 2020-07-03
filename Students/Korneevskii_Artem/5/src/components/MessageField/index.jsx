@@ -6,7 +6,7 @@ import './style.css';
 
 import Message from '../Message/index.jsx';
 
-import { sendMessage } from '../../store/actions/messages_actions.js';
+import { sendMessage, loadMessages } from '../../store/actions/messages_actions.js';
 import { bindActionCreators } from 'redux';
 import connect from 'react-redux/es/connect/connect';
 
@@ -18,55 +18,55 @@ class MessageField extends Component {
         };
     }
 
-    handleSend = (text, sender) => {
+    handleSend = (chatId, text, sender) => {
         this.setState({text: ''});
         if (sender == 'Vader') {
-            this.sendMessage(text, sender)
+            this.sendMessage(chatId, text, sender)
         }
     }
 
-    sendMessage = (text, sender) => {
-        let { messages } = this.props;
-        let messageId = Object.keys(messages).length + 1;
-        this.props.sendMessage(messageId, sender, text);
+    sendMessage = (chatId, text, sender) => {
+        this.props.sendMessage(chatId, sender, text);
     }
 
     handleChange = (evt) => {
+        let { chatId } = this.props;           
         evt.keyCode !== 13 ? 
             this.setState({ text: evt.target.value }) :
-            this.handleSend( evt.target.value ,'Vader')
+            this.handleSend(chatId, evt.target.value ,'Vader')
+    }
+
+    componentDidMount() {
+        this.props.loadMessages(this.props.chatId);
     }
 
     render() {
-        let { messages } = this.props;
-
+        let { messages, chatId } = this.props;      
         let messageArray = [];
 
-        Object.keys(messages).forEach(key => {
+        Object.keys(messages).forEach(key => {            
             messageArray.push (<Message 
-                text={ messages[key].text } 
-                sender={ messages[key].user } 
-                key = { key }/>);
+                text={ messages[key].text }              
+                sender={ messages[key].sender }   
+                key = { key }/>);                
         });        
 
         return (<div className="d-flex flex-column w-75 messenger-chat">
-                    <div className="messages">
+                    <div className="messages">                 
                         { messageArray }
                     </div>
                     <div className="controls d-flex w-100 justify-content-between">
                         <TextField
                             type="text" 
-                            //className="w-75"
                             onChange={ this.handleChange }
                             onKeyUp = { this.handleChange }
                             value={ this.state.text }
-     
                             name="input"
                             fullWidth={ true }
                             hintText="Введите сообщение"
                             style={ { fontSize: '1rem', margin: '10px' } }
                         />                  
-                        <FloatingActionButton style={ { margin: '10px' } } onClick={ () => this.handleSend(this.state.text, 'Vader') }>
+                        <FloatingActionButton style={ { margin: '10px' } } onClick={ () => this.handleSend(chatId, this.state.text, 'Vader') }>
                             <SendIcon />
                         </FloatingActionButton>
                     </div>
@@ -78,6 +78,6 @@ const mapStateToProps = ({ messageReducer }) => ({
     messages: messageReducer.messages
 });
 
-const mapDispatchToProps = dispatch => bindActionCreators({ sendMessage }, dispatch);
+const mapDispatchToProps = dispatch => bindActionCreators({ sendMessage, loadMessages }, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(MessageField);

@@ -48,9 +48,20 @@ module.exports = {
     })
   ],
   devServer: {
-    port: 8080,
-    historyApiFallback: {
-      index: 'index.html'
+    port: 3000,
+    // historyApiFallback: {
+    //   index: 'index.html'
+    // },
+    historyApiFallback: true,
+    hot: true,
+    open: false,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3300',
+        pathRewrite: { '^/api' : ''},
+        secire: false,
+        changeOrigin: true
+      }
     }
   },
   devtool: 'cheap-inline-module-source-map',

@@ -1,35 +1,29 @@
 import update from 'react-addons-update';
 
-import { SEND_MSG } from '../actions/messages_actions.js';
+import { SUCCESS_MESSAGES_LOADING } from '../actions/messages_actions.js';
+import { SUCCESS_MESSAGE_SEND } from '../actions/messages_actions.js';
 
 const initialStore = {
-    messages: {
-        1: {
-            user: 'Vader',
-            text: 'Привет'
-        },
-        2: {
-            user: null,
-            text: 'Привет!'
-        },
-        3: {
-            user: 'Vader',
-            text: 'Как дела?'
-        },
-        4: {
-            user: null,
-            text: 'Нормально!'
-        }
-    }
+    messages: {}
 }
 
 export default function messageReducer(store = initialStore, action) {
     switch(action.type) {
-        case SEND_MSG: {
-            return update(store, {
-                messages: { $merge: { [action.messageId]: { user: action.sender, text: action.text } } }
-            })
+        case SUCCESS_MESSAGE_SEND: {
+            if (action.payload.response.status) {
+                return update(store, {
+                    messages: { $merge: { [action.payload.msg.messageId]: { sender: action.payload.msg.sender, text: action.payload.msg.text } } }
+                })
+            } else {
+                console.log('Error send msg', action.payload);
+                return null
+            }
         }
+        case SUCCESS_MESSAGES_LOADING: {
+            return update(store, {
+                messages: { $set: action.payload }
+            })
+        }        
         default:
             return store;
     }

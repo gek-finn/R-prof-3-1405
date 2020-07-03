@@ -1,37 +1,35 @@
 import update from 'react-addons-update';
 
 // import actions
-import { SEND_MSG } from '../actions/messages_actions.js';
+import { START_MESSAGES_LOADING, SUCCESS_MESSAGES_LOADING } from '../actions/messages_actions.js';
+import { SUCCESS_MESSAGE_SEND } from '../actions/messages_actions.js';
 
-const initialStore ={
-    
-    messages: {
-        1: {
-                user: 'Me',
-                text: 'Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quidem, ratione'
-            },
-        2: {
-                user: null,
-                text: 'Lorem ipsum dolor sit amet'
-            },
-        3: {
-                user: 'Me',
-                text: 'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Architecto, voluptatum quasi?'
-            },
-        4: {
-                user: null,
-                text: 'Lorem ipsum dolor sit amet consectetur, adipisicing elit'
-            }
-    },
+const initialStore = {
+    messages: {},
+    isLoading: false
 }
-
-
 
 export default function msgReducer(store = initialStore, action) {
     switch (action.type) {
-        case SEND_MSG: {
+        case SUCCESS_MESSAGE_SEND: {
+            if(action.payload.response.status) {
+                return update(store, {
+                    messages: { $merge: { [action.payload.msg.messageId]: { sender: action.payload.msg.sender, text: action.payload.msg.text, chatId: action.payload.msg.chatId } } }
+                })
+            } else {
+                console.log('Error send msg', action.payload);
+                return null
+            }
+        }
+        case START_MESSAGES_LOADING: {
             return update(store, {
-                messages: { $merge: { [action.messageId]: { user: action.sender, text: action.text, chatId: action.chatId } } }
+               isLoading: { $set: true }
+            })
+        }
+        case SUCCESS_MESSAGES_LOADING: {
+            return update(store, {
+                messages: { $set: action.payload },
+                isLoading: { $set: false }
             })
         }
         default:

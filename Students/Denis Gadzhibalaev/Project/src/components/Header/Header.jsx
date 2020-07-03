@@ -7,8 +7,9 @@ import './style.sass';
 import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
 import { TransitionGroup, CSSTransition } from 'react-transition-group'
 import PersonIcon from '@material-ui/icons/Person';
-import { Link } from 'react-router-dom';
+import { push } from 'connected-react-router';
 
+import { loadUserProfile } from '../../store/actions/profile_actions.js';
 import { bindActionCreators } from 'redux';
 import connect from 'react-redux/es/connect/connect'
 
@@ -20,13 +21,11 @@ class Header extends React.Component {
     static propTypes = {
         chatId: PropTypes.string
     }
-    static defaultProps = {
-        chatId: '1'
-    }
-
+    
     state = {
         showMenu: false,
-        showProfile: false
+        showProfile: false,
+        chtLoaded: false
     }
 
 
@@ -59,6 +58,17 @@ class Header extends React.Component {
             });   
     }
 
+    handleNavigate = (link) => {
+        this.props.push(link);
+    };
+
+    componentDidMount() {
+        this.props.loadUserProfile()
+        this.setState({
+            chtLoaded: true
+        })
+    }
+
     componentWillUnmount() {
         document.removeEventListener('click', this.hiddenMenu);
     }
@@ -77,11 +87,9 @@ class Header extends React.Component {
 
         return(
             <div className="header w-100">
-                <h1 className="header_title w-100"> Chat Room { this.props.chatId } </h1>
+                <h1 className="header_title w-100"> Chat Room {this.props.chatId ? (!this.props.isLoading && this.state.chtLoaded  && this.props.chats[this.props.chatId].title) : '---' } </h1>
                 <div className = 'header_menu__wrapper'>    
-                    <Link  to = '/profile/'>
-                    <button onMouseEnter = { this.showProfile } onMouseLeave = { this.hiddenProfile } className= "header_menu__btn" style = {modalPosition}><PersonIcon /></button>
-                    </Link>
+                    <button  onClick = { () => this.handleNavigate('/profile/') } onMouseEnter = { this.showProfile } onMouseLeave = { this.hiddenProfile } className= "header_menu__btn" style = {modalPosition}><PersonIcon /></button>
                     <button onClick = { this.handleClick } className= "header_menu__btn"><MoreVertIcon /></button>
                     <TransitionGroup>
                         {this.state.showMenu && <CSSTransition classNames = "option" timeout = {1000}>{menu}</CSSTransition>}
@@ -93,11 +101,13 @@ class Header extends React.Component {
     }
 }
 
-const mapStateToProps = ({ prfReducer }) => ({
+const mapStateToProps = ({ prfReducer, chtReducer }) => ({
     userName: prfReducer.userName,
-    userEmail: prfReducer.userEmail
+    userEmail: prfReducer.userEmail,
+    chats: chtReducer.chats,
+    isLoading: chtReducer.isLoading
 });
 
-const mapDispathToProps = dispatch => bindActionCreators({ }, dispatch);
+const mapDispathToProps = dispatch => bindActionCreators({ push, loadUserProfile }, dispatch);
 
 export default connect(mapStateToProps, mapDispathToProps)(Header);

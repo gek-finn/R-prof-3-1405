@@ -1,48 +1,44 @@
 import update from "react-addons-update";
 
-import { ADD_CHAT } from '../actions/chats_actions.js';
+import { SUCCESS_CHATS_LOADING } from '../actions/chats_actions.js';
+import { SUCCESS_CHAT_ADD } from '../actions/chats_actions.js';
 
 let initialStore = {
-    chats: {
-        1: {
-            title: 'Чат 1',
-            messagesList: []
-        },
-        2: {
-            title: 'Чат 2',
-            messagesList: []
-        },
-        3: {
-            title: 'Чат 3',
-            messagesList: []
-        },
-        4: {
-            title: 'Чат 4',
-            messagesList: []
-        }, 
-        5: {
-            title: 'Чат 5',
-            messagesList: []
-        }               
-    }
+    chats: {}
 }
 
 export default function chatsReducer(store = initialStore, action) {
     switch (action.type) {
-        case ADD_CHAT: {
-            let chatId = Object.keys(store.chats).length + 1;
+        case SUCCESS_CHAT_ADD: {
+            if (action.payload.response.status) {            
+                let chatId = action.payload._id;
+                let title = action.payload.title;
 
-            return update(store, {
-                chats: {
-                    $merge: {
-                        [chatId]: {
-                            title: action.title,
-                            messagesList: []
+                return update(store, {
+                    chats: {
+                        $merge: {
+                            [chatId]: { title }
                         }
                     }
-                }
-            });
+                })  
+            } 
+            else {            
+                console.log('Error add chat', action.payload);
+                return null
+            }            
         }
+        case SUCCESS_CHATS_LOADING: {
+            let dto = action.payload;
+            let chats = {};
+
+            dto.forEach(d => {
+                chats[d._id] = { title: d.title }
+            });
+
+            return update(store, {
+                chats: { $set: chats }
+            });
+        }        
         default: 
             return store;
     }

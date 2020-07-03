@@ -5,7 +5,7 @@ import SendIcon from '@material-ui/icons/Send';
 import './style.css';
 import Message from '../Message/Message.jsx';
 
-import { sendMessage } from '../../store/actions/messages_actions.js';
+import { sendMessage,loadMessages } from '../../store/actions/messages_actions.js';
 import { bindActionCreators } from 'redux';
 import connect from 'react-redux/es/connect/connect';
 
@@ -19,35 +19,34 @@ class MessageField extends Component {
         }
     }
 
-    handleSend = (text, sender) => {
+    handleSend = (chatId, text, sender) => {
         this.setState({text: ''})
         if (sender == 'Me') {
-            this.sendMessage(text, sender)
+            this.sendMessage(chatId, text, sender)
         }
     }
 
-    sendMessage = (text, sender) => {
-        let { messages } = this.props;
-        let messageId = Object.keys(messages).length + 1;
-        //вызов Action
-        this.props.sendMessage(messageId, sender, text)
+    sendMessage = (chatId, text, sender) => {
+        this.props.sendMessage(chatId, sender, text)
+    }
+
+    componentDidMount() {
+        this.props.loadMessages(this.props.chatId);
     }
 
     handleChange = (evt) => {
-        evt.keyCode !== 13 ?
-            this.setState({ text: evt.target.value }) :
-            this.handleSend(evt)
+        if (evt.keyCode !== 13) this.setState({ text: evt.target.value })
     }
 
 
     render () {
-        let { messages } = this.props;
+        let { messages, chatId } = this.props;
 
         let msgArr = []
         Object.keys(messages).forEach(key => {
             msgArr.push (<Message
                 text={ messages[key].text } 
-                sender={ messages[key].user }
+                sender={ messages[key].sender }
                 key={ key }/>);
         });
         
@@ -65,7 +64,7 @@ class MessageField extends Component {
                         value={ this.state.text }
                     />
                     <Fab size="small" color="primary"
-                    onClick={ () => this.handleSend(this.state.text, 'Me') }>
+                    onClick={ () => this.handleSend(chatId, this.state.text, 'Me') }>
                         <SendIcon/>
                     </Fab>
                 </div>
@@ -79,6 +78,6 @@ const mapStateToProps = ({ msgReducer }) => ({
     messages: msgReducer.messages
 })
 
-const mapDispatchToProps = dispatch => bindActionCreators({ sendMessage }, dispatch);
+const mapDispatchToProps = dispatch => bindActionCreators({ sendMessage, loadMessages }, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(MessageField);
